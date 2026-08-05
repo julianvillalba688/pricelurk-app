@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charSet="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="data-spm" content="a2g0n" />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="aplus-waiting" content="MAN" />
+<meta name="aplus-xplug" content="NONE" />
+<meta name="aplus-auto-exp-visible" content="0.5" />
+<meta name="aplus-auto-exp-duration" content="500" />
+<meta name="aplus-auto-exp"
+	content="[ {&#x27;logkey&#x27;:&#x27;/ae.pc_ctr.statweb_ae_ctr&#x27;,&#x27;tag&#x27;:&#x27;a&#x27;,&#x27;filter&#x27;:&#x27;exp_type&#x27;,&#x27;props&#x27;:[&#x27;project_id&#x27;,&#x27;exp_page&#x27;,&#x27;exp_page_area&#x27;,&#x27;exp_type&#x27;,&#x27;exp_condition&#x27;,&#x27;exp_product&#x27;,&#x27;prod&#x27;,&#x27;exp_attribute&#x27;,&#x27;exp_result_cnt&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}, {&#x27;logkey&#x27;:&#x27;/ae.pc_ctr.statweb_ae_ctr&#x27;,&#x27;tag&#x27;:&#x27;li&#x27;,&#x27;filter&#x27;:&#x27;exp_type&#x27;,&#x27;props&#x27;:[&#x27;project_id&#x27;,&#x27;exp_page&#x27;,&#x27;exp_page_area&#x27;,&#x27;exp_type&#x27;,&#x27;exp_condition&#x27;,&#x27;exp_product&#x27;,&#x27;prod&#x27;,&#x27;exp_attribute&#x27;,&#x27;exp_result_cnt&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}, {&#x27;logkey&#x27;:&#x27;/ae.pc_ctr.statweb_ae_ctr&#x27;,&#x27;tag&#x27;:&#x27;div&#x27;,&#x27;filter&#x27;:&#x27;exp_type&#x27;,&#x27;props&#x27;:[&#x27;project_id&#x27;,&#x27;exp_page&#x27;,&#x27;exp_page_area&#x27;,&#x27;exp_type&#x27;,&#x27;exp_condition&#x27;,&#x27;exp_product&#x27;,&#x27;prod&#x27;,&#x27;exp_attribute&#x27;,&#x27;exp_result_cnt&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}]" />
+<meta name="aplus-auto-clk"
+	content="[ {&#x27;logkey&#x27;:&#x27;/ae.pc_click.statweb_ae_click&#x27;,&#x27;tag&#x27;:&#x27;img&#x27;,&#x27;filter&#x27;:&#x27;ae_button_type&#x27;,&#x27;props&#x27;:[&#x27;ae_project_id&#x27;,&#x27;ae_page_type&#x27;,&#x27;ae_page_area&#x27;,&#x27;ae_button_type&#x27;,&#x27;ae_object_type&#x27;,&#x27;ae_object_value&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}, {&#x27;logkey&#x27;:&#x27;/ae.pc_click.statweb_ae_click&#x27;,&#x27;tag&#x27;:&#x27;li&#x27;,&#x27;filter&#x27;:&#x27;ae_button_type&#x27;,&#x27;props&#x27;:[&#x27;ae_project_id&#x27;,&#x27;ae_page_type&#x27;,&#x27;ae_page_area&#x27;,&#x27;ae_button_type&#x27;,&#x27;ae_object_type&#x27;,&#x27;ae_object_value&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}, {&#x27;logkey&#x27;:&#x27;/ae.pc_click.statweb_ae_click&#x27;,&#x27;tag&#x27;:&#x27;a&#x27;,&#x27;filter&#x27;:&#x27;ae_button_type&#x27;, &#x27;props&#x27;:[&#x27;ae_project_id&#x27;,&#x27;ae_page_type&#x27;,&#x27;ae_page_area&#x27;,&#x27;ae_button_type&#x27;,&#x27;ae_object_type&#x27;,&#x27;ae_object_value&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}, {&#x27;logkey&#x27;:&#x27;/ae.pc_click.statweb_ae_click&#x27;,&#x27;tag&#x27;:&#x27;div&#x27;,&#x27;filter&#x27;:&#x27;ae_button_type&#x27;, &#x27;props&#x27;:[&#x27;ae_project_id&#x27;,&#x27;ae_page_type&#x27;,&#x27;ae_page_area&#x27;,&#x27;ae_button_type&#x27;,&#x27;ae_object_type&#x27;,&#x27;ae_object_value&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}, {&#x27;logkey&#x27;:&#x27;/ae.pc_click.statweb_ae_click&#x27;,&#x27;tag&#x27;:&#x27;span&#x27;,&#x27;filter&#x27;:&#x27;ae_button_type&#x27;, &#x27;props&#x27;:[&#x27;ae_project_id&#x27;,&#x27;ae_page_type&#x27;,&#x27;ae_page_area&#x27;,&#x27;ae_button_type&#x27;,&#x27;ae_object_type&#x27;,&#x27;ae_object_value&#x27;,&#x27;st_page_id&#x27;,&#x27;struc_params&#x27;]}]" />
+<meta name="pdp-m-sw-tag" content="ae-fe/pdp-m" />
+<link rel="icon" href="https://ae-pic-a1.aliexpress-media.com/images/eng/wholesale/icon/aliexpress.ico" />
+<meta name="robots" content="follow,index" />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+<meta name="data-spm" content="a2g0n" />
+<link rel="alternate" href="android-app://com.alibaba.aliexpresshd/aliexpress/deeplink/list/msite/en//main" />
+<link rel="alternate" hrefLang="en" href="https://www.aliexpress.com/" />
+<link rel="alternate" hrefLang="ru" href="https://aliexpress.ru/" />
+<link rel="alternate" hrefLang="pt" href="https://pt.aliexpress.com/" />
+<link rel="alternate" hrefLang="in" href="https://id.aliexpress.com/" />
+<link rel="alternate" hrefLang="es" href="https://es.aliexpress.com/" />
+<link rel="alternate" hrefLang="fr" href="https://fr.aliexpress.com/" />
+<link rel="alternate" hrefLang="de" href="https://de.aliexpress.com/" />
+<link rel="alternate" hrefLang="it" href="https://it.aliexpress.com/" />
+<link rel="alternate" hrefLang="ja" href="https://ja.aliexpress.com/" />
+<link rel="alternate" hrefLang="ko" href="https://ko.aliexpress.com/" />
+<link rel="alternate" hrefLang="nl" href="https://nl.aliexpress.com/" />
+<link rel="alternate" hrefLang="vi" href="https://vi.aliexpress.com/" />
+<link rel="alternate" hrefLang="th" href="https://th.aliexpress.com/" />
+<link rel="alternate" hrefLang="tr" href="https://tr.aliexpress.com/" />
+<link rel="alternate" hrefLang="pl" href="https://pl.aliexpress.com/" />
+<link rel="alternate" hrefLang="ar" href="https://ar.aliexpress.com/" />
+<meta content="activity" property="og:type" />
+<meta content="https://ae-pic-a1.aliexpress-media.com/kf/HTB18eCBQXXXXXXfXXXX760XFXXXa.png" property="og:image" />
+<meta property="fb:admins" content="100001353684210,644984273" />
+<meta property="fb:page_id" content="335963307560" />
+<meta property="fb:app_id" content="176044105761845" />
+<meta property="al:android:url" content="aliexpress://goto?fbsrc=fbapplink_sale_android" />
+<meta property="al:android:package" content="com.alibaba.aliexpresshd" />
+<meta property="al:android:app_name" content="AliExpress" />
+<meta property="al:iphone:url" content="aliexpress://goto?fbsrc=fbapplink_sale_ios" />
+<meta property="al:iphone:app_store_id" content="436672029" />
+<meta property="al:iphone:app_name" content="AliExpress" />
+<meta name="aplus-plugin-aefront-ignore-force-set-meta" content="true" />
+<script>
+	!(function () {
+        'use strict';
+        var s, o;
+        (s = window.goldlog_queue || (window.goldlog_queue = [])),
+            (o = 'aplus.aliexpress.com'),
+            /aliexpress.us$/.test(window.location.host) && (o = 'aplus.aliexpress.us'),
+            s.push({
+                action: 'goldlog.setMetaInfo',
+                arguments: ['aplus-rhost-v', o + '/g.gif'],
+            }),
+            s.push({
+                action: 'goldlog.setMetaInfo',
+                arguments: ['aplus-rhost-g', o]
+            })
+    }
+    )();
+</script>
+<meta name="aplus-terminal" content="1" />
+<style>
+	@font-face {
+		src: url(//at.alicdn.com/t/c/font_3357879_zqnvmbzlbqn.ttf);
+		font-family: aecDoneFont101
+	}
+</style>
+<style>
+	@font-face {
+		font-family: TT Norms Pro;
+		font-style: normal;
+		font-display: swap;
+		font-weight: 400;
+		src: local('TT Norms Pro'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Normal.woff2) format('woff2'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Normal.woff) format('woff'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Normal.ttf) format('truetype')
+	}
+
+	@font-face {
+		font-family: TT Norms Pro;
+		font-style: normal;
+		font-display: swap;
+		font-weight: 500;
+		src: local('TT Norms Pro Medium'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Medium.woff2) format('woff2'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Medium.woff) format('woff'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Medium.ttf) format('truetype')
+	}
+
+	@font-face {
+		font-family: TT Norms Pro;
+		font-style: normal;
+		font-display: swap;
+		font-weight: 600;
+		src: local('TT Norms Pro SemiBold'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/DemiBold.woff2) format('woff2'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/DemiBold.woff) format('woff'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/DemiBold.ttf) format('truetype')
+	}
+
+	@font-face {
+		font-family: TT Norms Pro;
+		font-style: normal;
+		font-display: swap;
+		font-weight: 700;
+		src: local('TT Norms Pro Bold'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Bold.woff2) format('woff2'), url(https://assets.aliexpress-media.com/g/ae-fe/static-ui/tt-norms-pro/Bold.woff) format('woff')
+	}
+</style>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+
+	body {
+		display: flex;
+		flex-direction: column;
+		font-variant: normal !important;
+		-webkit-font-feature-settings: normal !important;
+		font-feature-settings: normal !important;
+	}
+
+	.mui-zebra-page {
+		flex: 1;
+		position: relative;
+	}
+
+	a {
+		text-decoration: none;
+	}
+
+	#content {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		position: relative;
+		min-height: auto !important;
+	}
+
+	.mui-zebra-page>div {
+		min-height: auto !important;
+	}
+
+	.nZ5uAp1XCP-BKExYE5MQG {
+		display: none !important;
+	}
+
+	img {
+		vertical-align: middle;
+	}
+
+	.aec-text {
+		font-size: 4.26667vw;
+	}
+</style>
+<style>
+	* {
+		-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	::-webkit-scrollbar {
+		display: none !important;
+	}
+</style>
+<style>
+	html {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	html::-webkit-scrollbar {
+		display: none;
+	}
+</style>
+<style>
+	.aec-text {
+		box-sizing: border-box;
+		display: block;
+		white-space: pre-wrap
+	}
+
+	.aec-text--overflow-hidden {
+		overflow: hidden
+	}
+
+	.aec-text--singleline {
+		white-space: nowrap
+	}
+
+	.aec-text--multiline {
+		display: -webkit-box;
+		-webkit-box-orient: vertical
+	}
+
+	.aec-view {
+		box-sizing: border-box;
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 0;
+		align-content: flex-start;
+		border: 0 solid #000;
+		margin: 0;
+		padding: 0;
+		min-width: 0
+	}
+</style>
+<style>
+	@keyframes fadeAnimate {
+		0% {
+			opacity: 0;
+		}
+
+		100% {
+			opacity: 1;
+		}
+	}
+
+	.GLOBAL-imgFadeAnimation {
+		animation: fadeAnimate 0.8s ease-out forwards;
+	}
+</style>
+<link rel="preconnect dns-prefetch" href="//assets.aliexpress-media.com" />
+<link rel="preconnect dns-prefetch" href="//ae-pic-a1.aliexpress-media.com" />
+<link rel="preconnect dns-prefetch" href="//acs.aliexpress.com" />
+<link rel="preconnect dns-prefetch" href="//aplus.aliexpress.com" />
+<link rel="preconnect dns-prefetch" href="//assets.alicdn.com" />
+<script>
+	if (window.__aec_base_config__)
+        window.__aec_base_config__.platform = "msite";
+</script>
+<style>
+	html body {
+		background: #FFFFFF;
+		margin: 0;
+	}
+</style>
+<script src="https://assets.alicdn.com/g/lzd_sec/LWSC-G/index.js"></script>
+<script src="https://g.alicdn.com/??/AWSC/AWSC/awsc.js,/sd/baxia-entry/baxiaCommon.js"></script>
+<meta name="ice-meta-count" content="0" />
+    <!--gop region start regionId common/aec_base_config version 20260721.172205.813-->
+<script>
+  window.__aec_base_config__ = {
+    runtimeVersion: '1.0.2',
+    reactVendorVersion: '1.0.0',
+    plugins: [
+      // ===== 1. UI 类（用户可见，优先加载） =====
+      {
+        name: 'header',
+        version: '1.0.2',
+        platform: ['pc', 'msite'],
+        platformEntry: true,
+        enabled: true,
+        sandbox: { level: 'L1' },
+        timeout: 15000,
+      },
+      {
+        name: 'smart-banner',
+        version: '1.0.0',
+        platform: ['msite'],
+        pages: ['home', 'best', 'detail', 'seoDetail', 'campaign', 'account', 'cart', 'category', 'payresult', 'search'],
+        enabled: true,
+        sandbox: { level: 'L1' },
+        timeout: 15000,
+      },
+      {
+        name: 'footer',
+        version: '1.0.1',
+        platform: ['pc', 'msite'],
+        platformEntry: true,
+        enabled: true,
+        sandbox: { level: 'L1' },
+        timeout: 15000,
+      },
+
+      // ===== 2. 业务功能 =====
+      {
+        name: 'batman',
+        version: '1.0.1',
+        platform: ['pc', 'msite'],
+        platformEntry: true,
+        enabled: true,
+        sandbox: { level: 'L1' },
+        timeout: 15000,
+        options: {},
+      },
+      {
+        name: 'rcmd',
+        version: '1.0.0',
+        platform: ['pc', 'msite', 'app'],
+        enabled: true,
+        timeout: 15000,
+        options: {},
+      },
+      {
+        name: 'detail',
+        version: '1.0.0',
+        platform: ['pc', 'msite'],
+        enabled: true,
+        timeout: 15000,
+        options: {
+          version: '0.0.9'
+        },
+      },
+      {
+        name: 'tags',
+        version: '1.0.1',
+        platform: ['pc', 'msite'],
+        enabled: true,
+        timeout: 15000,
+        options: {},
+      },
+
+      // ===== 3. 后台/统计/合规 =====
+      {
+        name: 'service-worker',
+        version: '1.0.0',
+        platform: ['pc'],
+        pages: ['home', 'best', 'detail', 'search'],
+        enabled: true,
+        timeout: 15000,
+        options: {
+          swVersion: '0.0.87/js'
+        },
+      },
+      {
+        name: 'service-worker',
+        version: '1.0.0',
+        platform: ['msite'],
+        pages: ['home', 'search', 'seoSearch', 'detail', 'seoDetail'],
+        enabled: true,
+        timeout: 15000,
+        options: {
+          swVersion: '0.0.87/js'
+        },
+      },
+      {
+        name: 'affiliate-tracker',
+        version: '1.0.1',
+        platform: ['pc'],
+        enabled: true,
+        timeout: 15000,
+        options: {},
+      },
+      {
+        name: 'affiliate-tracker',
+        version: '1.0.1',
+        platform: ['msite'],
+        pages: ['home', 'search', 'best', 'detail', 'seoDetail', 'campaign', 'account', 'cart', 'category'],
+        enabled: true,
+        timeout: 15000,
+        options: {},
+      },
+      {
+        name: 'gep',
+        version: '1.0.0',
+        platform: ['pc', 'msite', 'app'],
+        enabled: true,
+        timeout: 15000,
+        options: {},
+      },
+      {
+        name: 'cookie-banner',
+        version: '1.0.3',
+        platform: ['pc', 'msite'],
+        enabled: true,
+        sandbox: { level: 'L1' },
+        timeout: 15000,
+        options: {},
+      },
+    ],
+  };
+</script>
+<!--gop region end regionId common/aec_base_config version 20260721.172205.813-->
+    <link rel="stylesheet" type="text/css" href="//assets.aliexpress-media.com/g/ae-dida/ai-pdp-m/0.0.11/css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="//assets.aliexpress-media.com/g/ae-dida/ai-pdp-m/0.0.11/css/p_index.css"/>
+
+
+
+
+</head>
+<body data-spm="detail">
+        <script>
+	if (window.__aec_base_config__)
+        window.__aec_base_config__.platform = "msite";
+</script>
+<script>
+	window.g_config = window.g_config || {};
+
+    window.g_config.env = "online";
+</script>
+<div id="aec-plugin-fixed-top-bar" style="position:fixed;top:0;left:0;right:0;z-index:1000">
+	<div id="aec-plugin-smart-banner-root"></div>
+	<div id="aec-plugin-header-root" style="min-height:44px;background:#FFF"></div>
+</div>
+<script>
+	(function () {
+        var bar = document.getElementById('aec-plugin-fixed-top-bar');
+        if (!bar)
+            return;
+        function sync() {
+            document.body.style.paddingTop = bar.offsetHeight + 'px';
+        }
+        if (typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(sync).observe(bar);
+        }
+        sync();
+        window.addEventListener('load', sync);
+    }
+    )();
+</script>
+<div id="ice-container"></div>
+<script>
+	(function () {
+        var c = window.__aec_base_config__;
+        if (!c || !c.plugins)
+            return;
+        var p = c.plugins.find(function (p) {
+            return p.name === 'footer';
+        });
+        if (p)
+            p.enabled = false;
+    }
+    )();
+</script>
+<script id="beacon-aplus"
+	src="//assets.aliexpress-media.com/g/??alilog/aplus_plugin_aefront/index.js,alilog/mlog/aplus_int.js"
+	exparams="aplus&amp;sidx=aplusSidx" plugins="aplus_plugin_ae/0.0.9/index.js" crossorigin="anonymous" defer="">
+</script>
+<script>
+	(function () {
+        try {
+            var index = 0;
+            var timer = setInterval(function () {
+                ++index;
+                if (window.ga && typeof window.ga === 'function') {
+                    ga('send', 'pageview');
+                    clearInterval(timer)
+                }
+                if (index >= 3) {
+                    clearInterval(timer)
+                }
+            }, 3000)
+        } catch (e) { }
+    }
+    )();
+    (function () {
+        function _gc_init_aff() {
+            var aeu_cid = _gc_getCookie();
+            var deviceType = _gc_getDevice();
+            _gc_bindEvent(document.body, 'touchstart', function (ev) {
+                var target = ev.target;
+                var parentTarget = findNearestATag(target);
+                if (target.nodeName.toLowerCase() === 'a' || parentTarget.nodeName.toLowerCase() === 'a') {
+                    var linkTarget = target.nodeName.toLowerCase() === 'a' ? target : parentTarget;
+                    if (/^((http|https):)?\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!-\/]))?$/.test(linkTarget.getAttribute('href'))) {
+                        var params = {};
+                        if (deviceType === 'msite')
+                            params.m_page_id = window.dmtrack_pageid;
+                        if (aeu_cid && deviceType === 'msite') {
+                            params.aff_trace_key = aeu_cid;
+                            params.aff_platform = 'msite'
+                        }
+                        var href = linkTarget.getAttribute('href');
+                        ['aff_trace_key', 'aff_platform', 'm_page_id'].forEach(function (item) {
+                            if (href.indexOf(item) > -1)
+                                delete params[item]
+                        });
+                        var hashStr = /(#[^?&]+)/.test(href) ? href.match(/(#[^?&]+)/)[0] : '';
+                        if (hashStr) {
+                            href = href.replace(hashStr, '')
+                        }
+                        var urlQuery = [];
+                        Object.keys(params).forEach(function (item) {
+                            urlQuery.push(item + '=' + params[item])
+                        });
+                        var hasAddedParams = urlQuery.length > 0 || hashStr.length > 0;
+                        if (hasAddedParams) {
+                            linkTarget.setAttribute('href', href + (!!~href.indexOf('?') ? '&' : '?') + urlQuery.join('&') + hashStr)
+                        } else {
+                            linkTarget.setAttribute('href', href)
+                        }
+                    }
+                }
+            })
+        }
+        function findNearestATag(node) {
+            var result = node;
+            var current = node;
+            var tagName = current.tagName.toLowerCase();
+            while (current !== null && tagName !== 'body') {
+                current = current.parentNode;
+                tagName = current.tagName.toLowerCase();
+                if (tagName === 'a') {
+                    result = current;
+                    break
+                }
+            }
+            return result
+        }
+        function _gc_bindEvent(elem, type, eventHandle) {
+            if (elem.addEventListener) {
+                elem.addEventListener(type, eventHandle, false)
+            } else if (elem.attachEvent) {
+                elem.attachEvent('on' + type, eventHandle)
+            }
+        }
+        function _gc_getCookie() {
+            var cookie = document.cookie || '';
+            var aeu_cid = '';
+            cookie.split('; ').forEach(function (item) {
+                if (item.indexOf('aeu_cid=') === -1)
+                    return true;
+                aeu_cid = item.split('=')[1]
+            });
+            return aeu_cid
+        }
+        function _gc_getDevice() {
+            var device = 'pc';
+            var uA = navigator.userAgent;
+            if (/(iPhone|Android)/.test(uA)) {
+                device = /AliApp\/AE/.test(uA) ? 'app' : 'msite';
+                return device
+            }
+            if (/(i|a)Pad/.test(uA)) {
+                device = /AliApp\/AE-PD/.test(uA) ? 'pad' : 'pc';
+                return device
+            }
+            return device
+        }
+        setTimeout(function () {
+            try {
+                _gc_init_aff()
+            } catch (e) { }
+        }, 100)
+    }
+    )();
+</script>
+<script crossorigin="anonymous"
+	src="https://assets.aliexpress-media.com/g/code/npm/@ali/aec-base-react/1.0.0/index.umd.es5.production.js"></script>
+<script src="https://assets.aliexpress-media.com/g/code/npm/@ali/aec-base-runtime/1.0.0/index.umd.es5.production.js"
+	defer=""></script>
+<script>
+	!(function () {
+        var a = window.__ICE_APP_CONTEXT__ || {};
+        var b = {
+            "appData": null,
+            "loaderData": {
+                "/": {
+                    "pageConfig": {}
+                }
+            },
+            "routePath": "/",
+            "matchedIds": ["/"],
+            "documentOnly": true,
+            "renderMode": "CSR"
+        };
+        for (var k in a) {
+            b[k] = a[k]
+        }
+        window.__ICE_APP_CONTEXT__ = b;
+    }
+    )();
+</script>
+<script>
+    window._d_c_ = window._d_c_ || {};
+    window._d_c_.isSW = "false";
+    window._d_c_.abTrace = "aliabtest138663_45568";
+</script>
+<script src="//assets.aliexpress-media.com/g/ae-dida/ai-pdp-m/0.0.11/js/p_index.js" defer="" crossorigin="anonymous"></script>
+<script src="//assets.aliexpress-media.com/g/ae-dida/ai-pdp-m/0.0.11/js/main.js" defer="" crossorigin="anonymous"></script>
+</body>
+</html>

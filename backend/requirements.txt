@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+pydantic
+pydantic-settings
+python-dotenv
+beautifulsoup4
+httpx
+redis
+celery
+pytest
+pytest-asyncio
+respx
+curl_cffi
+playwright>=1.40.0
