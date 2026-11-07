@@ -1,0 +1,9 @@
+.venv
+.env
+*.db
+*debug.html
+__pycache__
+.pytest_cache
+.ruff_cache
+.coverage
+tests
