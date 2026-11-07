@@ -1,212 +1,54 @@
+from decimal import Decimal
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock
-from app.services.scraper import (
-    clean_price,
-    scrape_product_url,
-    ProductNotFoundError,
-    ParsingError,
-    ScrapingError
-)
 
-# --- Test para helpers (clean_price) ---
+from app.services.scraper import ParsingError, ScrapingError, clean_price, parse_product, scrape_product
 
-@pytest.mark.parametrize("price_str, expected", [
-    ("$ 1.250.000", 1250000.0),
-    ("1,250.00 USD", 1250.0),
-    ("1250000.00", 1250000.0),
-    ("$45.990,00", 45990.0),
-    ("99,99", 99.99),
-    ("1,250", 1250.0),
-    ("1.250", 1250.0),
-    ("1.250,99", 1250.99),
-    ("1,250.99", 1250.99),
-    ("12345", 12345.0),
-    ("", 0.0),
-    (None, 0.0)
-])
-def test_clean_price_formats(price_str, expected):
-    assert clean_price(price_str) == expected
 
-def test_clean_price_invalid():
+@pytest.mark.parametrize("value,expected", [("1250000.00", "1250000"), ("0.10", "0.10"), ("4599.99", "4599.99"), ("12345", "12345")])
+def test_machine_decimal(value, expected):
+    assert clean_price(value) == Decimal(expected)
+
+
+@pytest.mark.parametrize("value", ["1,250.00 USD", "$ 1.250.000", "1,250", "1.250,99", "invalid", "", None, "NaN", "-1"])
+def test_reject_ambiguous_price(value):
     with pytest.raises(ParsingError):
-        clean_price("invalid price")
+        clean_price(value)
 
-# --- Fixtures HTML Mock ---
 
-HTML_MERCADOLIBRE = """
-<html>
-  <head>
-    <meta property="og:image" content="https://mlb-s2-p.mlstatic.com/mock_image.jpg">
-  </head>
-  <body>
-    <h1 class="ui-pdp-title">iPhone 14 Pro Max 256 GB</h1>
-    <div class="ui-pdp-price__second-line">
-      <span class="andes-money-amount__fraction">4.599</span>
-      <span class="andes-money-amount__cents">99</span>
-    </div>
-  </body>
-</html>
-"""
+def html(currency="USD", price="45.99"):
+    return '<script type="application/ld+json">{"@type":"Product","name":"Fixture","offers":{"@type":"Offer","price":"' + price + '","priceCurrency":"' + currency + '"}}</script>'
 
-HTML_AMAZON = """
-<html>
-  <body>
-    <span id="productTitle">Sony WH-1000XM5</span>
-    <span class="a-price-whole">348.</span>
-    <span class="a-price-fraction">00</span>
-    <img id="landingImage" src="https://m.media-amazon.com/images/mock.jpg" />
-  </body>
-</html>
-"""
 
-HTML_GENERIC = """
-<html>
-  <head>
-    <meta property="og:title" content="Monitor LG 24 Pulgadas">
-    <meta property="og:price:amount" content="149.99">
-    <meta property="og:image" content="https://example.com/monitor.jpg">
-  </head>
-</html>
-"""
+@pytest.mark.parametrize("url,platform", [("https://www.amazon.com/dp/fixture", "amazon"), ("https://articulo.mercadolibre.com.co/MCO-fixture", "mercadolibre"), ("https://es.aliexpress.com/item/fixture", "aliexpress")])
+async def test_supported_store_fixture(url, platform):
+    with patch("app.services.scraper.fetch_document", AsyncMock(return_value=(html().encode(), url, "text/html"))):
+        result = await scrape_product(url)
+    assert result["platform"] == platform
+    assert result["price"] == Decimal("45.99")
+    assert result["currency"] == "USD"
 
-HTML_ALIEXPRESS = """
-<html>
-  <head>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org/",
-        "@type": "Product",
-        "name": "Teclado Mecanico AliExpress",
-        "image": "https://ae01.alicdn.com/kf/mock.jpg",
-        "offers": {
-          "@type": "Offer",
-          "price": "45.99",
-          "priceCurrency": "USD"
-        }
-      }
-    </script>
-  </head>
-  <body></body>
-</html>
-"""
 
-MOCK_ML_API_RESPONSE = """
-{
-  "id": "MCO1902404845",
-  "title": "Producto ML de Catalogo",
-  "price": 120000,
-  "thumbnail": "https://http2.mlstatic.com/mock.jpg"
-}
-"""
+@pytest.mark.parametrize("currency", ["", "$", "unknown", "usd"])
+def test_currency_not_inferred(currency):
+    with pytest.raises(ParsingError):
+        parse_product(html(currency), "https://amazon.com/a")
 
-HTML_INVALID = """
-<html>
-  <body>
-    <h1>Solo un titulo, sin precio</h1>
-  </body>
-</html>
-"""
 
-class MockCurlResponse:
-    def __init__(self, status_code, text, url=""):
-        self.status_code = status_code
-        self.text = text
-        self.url = url
-        
-    def json(self):
-        import json
-        return json.loads(self.text)
+def test_metadata_pair():
+    doc = '<meta property="og:title" content="Fixture"><meta property="product:price:amount" content="123.45"><meta property="product:price:currency" content="COP">'
+    assert parse_product(doc, "https://mercadolibre.com.co/a")["currency"] == "COP"
+    with pytest.raises(ParsingError):
+        parse_product(doc.replace("product:price:currency", "og:price:currency"), "https://mercadolibre.com.co/a")
 
-# --- Test para Scraper Principal ---
 
-@pytest.mark.asyncio
-async def test_scrape_mercadolibre():
-    url = "https://articulo.mercadolibre.com.co/MCO-mock"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = MockCurlResponse(200, HTML_MERCADOLIBRE, url)
-        result = await scrape_product_url(url)
-    
-    assert result["platform"] == "mercadolibre"
-    assert result["title"] == "iPhone 14 Pro Max 256 GB"
-    assert result["price"] == 4599.99
-    assert result["image_url"] == "https://mlb-s2-p.mlstatic.com/mock_image.jpg"
-    assert result["url"] == url
+def test_multiple_products_not_arbitrarily_selected():
+    with pytest.raises(ParsingError, match="varios productos"):
+        parse_product(html() + html("COP", "10000"), "https://amazon.com/a")
 
-@pytest.mark.asyncio
-async def test_scrape_amazon():
-    url = "https://www.amazon.com/dp/B09XS7JWHH"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = MockCurlResponse(200, HTML_AMAZON, url)
-        result = await scrape_product_url(url)
-    
-    assert result["platform"] == "amazon"
-    assert result["title"] == "Sony WH-1000XM5"
-    assert result["price"] == 348.0
-    assert result["image_url"] == "https://m.media-amazon.com/images/mock.jpg"
 
-@pytest.mark.asyncio
-async def test_scrape_generic():
-    url = "https://www.tienda-desconocida.com/producto"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = MockCurlResponse(200, HTML_GENERIC, url)
-        result = await scrape_product_url(url)
-    
-    assert result["platform"] == "generic"
-    assert result["title"] == "Monitor LG 24 Pulgadas"
-    assert result["price"] == 149.99
-    assert result["image_url"] == "https://example.com/monitor.jpg"
-
-@pytest.mark.asyncio
-async def test_product_not_found():
-    url = "https://www.amazon.com/dp/INVALID"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = MockCurlResponse(404, "Not found", url)
-        with pytest.raises(ProductNotFoundError):
-            await scrape_product_url(url)
-
-@pytest.mark.asyncio
-async def test_parsing_error():
-    url = "https://www.amazon.com/dp/BROKEN"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = MockCurlResponse(200, HTML_INVALID, url)
-        with pytest.raises(ParsingError):
-            await scrape_product_url(url)
-
-@pytest.mark.asyncio
-async def test_http_network_error():
-    url = "https://www.amazon.com/dp/TIMEOUT"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.side_effect = Exception("Timeout")
-        with pytest.raises(ScrapingError):
-            await scrape_product_url(url)
-
-@pytest.mark.asyncio
-async def test_scrape_mercadolibre_catalog():
-    url = "https://www.mercadolibre.com.co/p/MCO65018896?pdp_filters=item_id%3AMCO1902404845"
-    api_url = "https://api.mercadolibre.com/items/MCO1902404845"
-    
-    async def side_effect(target_url, *args, **kwargs):
-        if target_url == api_url:
-            return MockCurlResponse(200, MOCK_ML_API_RESPONSE, target_url)
-        return MockCurlResponse(200, "<html></html>", target_url)
-
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.side_effect = side_effect
-        result = await scrape_product_url(url)
-    
-    assert result["platform"] == "mercadolibre"
-    assert result["title"] == "Producto ML de Catalogo"
-    assert result["price"] == 120000.0
-    assert result["image_url"] == "https://http2.mlstatic.com/mock.jpg"
-
-@pytest.mark.asyncio
-async def test_scrape_aliexpress():
-    url = "https://es.aliexpress.com/item/1005001234.html"
-    with patch("curl_cffi.requests.AsyncSession.get", new_callable=AsyncMock) as mock_get:
-        mock_get.return_value = MockCurlResponse(200, HTML_ALIEXPRESS, url)
-        result = await scrape_product_url(url)
-    
-    assert result["platform"] == "aliexpress"
-    assert result["title"] == "Teclado Mecanico AliExpress"
-    assert result["price"] == 45.99
-    assert result["image_url"] == "https://ae01.alicdn.com/kf/mock.jpg"
+async def test_transport_failure_is_generic():
+    with patch("app.services.scraper.fetch_document", AsyncMock(side_effect=RuntimeError("internal credentials"))):
+        with pytest.raises(ScrapingError, match="No se pudo consultar"):
+            await scrape_product("https://amazon.com/a")

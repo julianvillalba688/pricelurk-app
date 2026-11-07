@@ -1,0 +1,30 @@
+# Optional overlay: set POSTGRES_PASSWORD in root .env before use.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: pricelurk
+      POSTGRES_USER: pricelurk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pricelurk -d pricelurk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  migrate:
+    environment:
+      DATABASE_URL: postgresql+psycopg2://pricelurk:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/pricelurk
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    environment:
+      DATABASE_URL: postgresql+psycopg2://pricelurk:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/pricelurk
+  worker:
+    environment:
+      DATABASE_URL: postgresql+psycopg2://pricelurk:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/pricelurk
+  beat:
+    environment:
+      DATABASE_URL: postgresql+psycopg2://pricelurk:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/pricelurk
+volumes:
+  postgres-data:
