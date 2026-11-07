@@ -10,6 +10,12 @@ test('connection failure is an error, never an empty list', async ({ page }) => 
   await expect(page.getByText('Todavía no hay productos.')).not.toBeVisible();
 });
 
+test('decimal labels preserve large amounts and cents', async ({ page }) => {
+  await page.route('**/api/v1/**', route => route.fulfill({ json: route.request().url().endsWith('/status') ? { ...status, writes_enabled: false } : [{ ...fixture, current_price: '9007199254740991.99' }] }));
+  await page.goto('/');
+  await expect(page.getByText(/USD\s*9\.007\.199\.254\.740\.991,99/)).toBeVisible();
+});
+
 test('explicit loading and empty state', async ({ page }) => {
   let release!: () => void;
   const gate = new Promise<void>(resolve => { release = resolve; });
