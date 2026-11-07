@@ -1,163 +1,150 @@
+import hmac
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timezone
+from decimal import Decimal
+
+from fastapi import APIRouter, Depends, Header, HTTPException
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from sqlalchemy.orm import Session
+
+from app.core.config import settings
+from app.db.database import get_db
+from app.models.models import PriceSnapshot, Product
+from app.services.money import CURRENCIES, amount, currency_code
+from app.services.monitoring import finish_observation
+from app.services.network import validate_url
+from app.services.scraper import ScrapingError, scrape_product
 
 logger = logging.getLogger(__name__)
-from sqlalchemy.orm import Session
-from app.db.database import get_db
-from app.models.models import Product, PriceSnapshot
-from app.services.scraper import scrape_product
-from pydantic import BaseModel
-from typing import List, Optional
-
 router = APIRouter()
 
+
+def require_write(x_api_key: str = Header(default="")):
+    if settings.DEMO_MODE or not settings.WRITE_API_KEY or not hmac.compare_digest(x_api_key.encode(), settings.WRITE_API_KEY.encode()):
+        raise HTTPException(403, "Escritura deshabilitada o clave de acceso incorrecta.")
+
+
 class ProductTrackRequest(BaseModel):
-    url: str
-    target_price: float
+    url: str = Field(max_length=2048)
+    target_price: Decimal = Field(gt=0, lt=Decimal("10000000000000000"))
+    currency: str
 
-class PriceSnapshotResponse(BaseModel):
-    id: int
-    price: float
-    timestamp: str
+    @field_validator("target_price", mode="before")
+    @classmethod
+    def require_decimal_string(cls, value):
+        if not isinstance(value, str):
+            raise ValueError("Envía el precio como texto decimal para conservar precisión.")
+        return value
 
-    class Config:
-        from_attributes = True
+    @model_validator(mode="after")
+    def validate_input(self):
+        validate_url(self.url)
+        self.currency = currency_code(self.currency)
+        self.target_price = amount(self.target_price, self.currency)
+        return self
+
 
 class ProductResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     url: str
-    title: str
-    platform: str
-    current_price: float
-    target_price: float
-    image_url: str
+    title: str | None
+    platform: str | None
+    current_price: Decimal | None
+    target_price: Decimal | None
+    currency: str | None
+    target_currency: str | None
+    image_url: str | None
     is_active: bool
+    source: str
 
-    class Config:
-        from_attributes = True
 
-@router.post("/track", response_model=ProductResponse)
+class SnapshotResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    price: Decimal
+    currency: str
+    source: str
+    timestamp: datetime
+
+    @field_validator("timestamp")
+    @classmethod
+    def timestamp_utc(cls, value):
+        return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+
+
+def find_product(db, product_id):
+    product = db.get(Product, product_id)
+    if not product or not product.is_active or ((product.source == "demo") != settings.DEMO_MODE):
+        raise HTTPException(404, "Producto no encontrado.")
+    return product
+
+
+@router.post("/track", response_model=ProductResponse, dependencies=[Depends(require_write)])
 async def track_product(data: ProductTrackRequest, db: Session = Depends(get_db)):
     try:
-        scraped_data = await scrape_product(data.url)
-        if not scraped_data or not scraped_data.get("price") or not scraped_data.get("title"):
-            raise HTTPException(
-                status_code=400,
-                detail="No se pudieron extraer el título o precio del producto.",
-            )
-        
-        product = Product(
-            url=data.url,
-            platform=scraped_data.get("platform", "generic"),
-            title=scraped_data["title"],
-            current_price=scraped_data["price"],
-            target_price=data.target_price,
-            image_url=scraped_data.get("image_url", "")
-        )
+        scraped = await scrape_product(data.url)
+        if scraped["currency"] != data.currency:
+            raise ValueError("La moneda del objetivo no coincide con la observada.")
+        product = Product(url=data.url, platform=scraped["platform"], target_price=data.target_price,
+                          target_currency=data.currency, image_url="")
         db.add(product)
-        db.commit()
-        db.refresh(product)
-        
-        snapshot = PriceSnapshot(product_id=product.id, price=product.current_price)
-        db.add(snapshot)
-        db.commit()
-        
-        return product
-    except HTTPException:
-        raise
-    except Exception as e:
+        db.flush()
+        return await finish_observation(db, product, scraped)
+    except (ValueError, ScrapingError) as exc:
         db.rollback()
-        logger.exception(f"[Track Product Error] Fallo al procesar URL {data.url}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error interno al guardar el producto: {str(e)}",
-        )
+        raise HTTPException(422, "No se pudo verificar precio y moneda. Revisa URL, moneda y disponibilidad de la tienda.") from exc
+    except Exception as exc:
+        db.rollback()
+        logger.error("Product creation failed")
+        raise HTTPException(500, "No se pudo guardar el producto.") from exc
 
-@router.get("", response_model=List[ProductResponse])
+
+@router.get("", response_model=list[ProductResponse])
 def get_products(db: Session = Depends(get_db)):
-    products = db.query(Product).filter(Product.is_active == True).all()
-    return products
+    query = db.query(Product).filter(Product.is_active.is_(True))
+    query = query.filter(Product.source == "demo") if settings.DEMO_MODE else query.filter(Product.source != "demo")
+    return query.order_by(Product.id).all()
+
 
 @router.get("/{id}/history")
 def get_product_history(id: int, db: Session = Depends(get_db)):
-    from datetime import datetime, timedelta
-    snapshots = db.query(PriceSnapshot).filter(PriceSnapshot.product_id == id).order_by(PriceSnapshot.timestamp.asc()).all()
-    
-    if not snapshots:
-        # Si no hay snapshots aún, devolver punto inicial basado en el precio actual
-        product = db.query(Product).filter(Product.id == id).first()
-        if product:
-            now = datetime.utcnow()
-            history = [
-                {"id": -1, "price": product.current_price, "timestamp": (now - timedelta(hours=1)).isoformat()},
-                {"id": -2, "price": product.current_price, "timestamp": now.isoformat()},
-            ]
-            stats = {"lowest_price": product.current_price, "highest_price": product.current_price, "average_price": product.current_price}
-            return {"stats": stats, "history": history}
-        return {"stats": {"lowest_price": 0, "highest_price": 0, "average_price": 0}, "history": []}
-    
-    prices = [s.price for s in snapshots]
-    stats = {
-        "lowest_price": min(prices),
-        "highest_price": max(prices),
-        "average_price": sum(prices) / len(prices)
-    }
-    history = [{"id": s.id, "price": s.price, "timestamp": s.timestamp.isoformat()} for s in snapshots]
-    
-    # Si solo hay 1 punto, duplicarlo con 1h de diferencia para que la gráfica renderice
-    if len(history) == 1:
-        from datetime import datetime, timedelta
-        first_ts = datetime.fromisoformat(history[0]["timestamp"])
-        history.insert(0, {"id": -1, "price": history[0]["price"], "timestamp": (first_ts - timedelta(hours=1)).isoformat()})
-    
-    return {"stats": stats, "history": history}
+    product = find_product(db, id)
+    source = "demo" if settings.DEMO_MODE else "observed"
+    query = db.query(PriceSnapshot).filter(PriceSnapshot.product_id == id)
+    excluded = query.filter(PriceSnapshot.source == "legacy_unverified").count()
+    snapshots = query.filter(PriceSnapshot.source == source, PriceSnapshot.currency == product.currency).order_by(PriceSnapshot.timestamp, PriceSnapshot.id).all()
+    prices = [snapshot.price for snapshot in snapshots]
+    stats = None
+    if prices:
+        unit = Decimal(1).scaleb(-CURRENCIES[product.currency])
+        stats = {"lowest_price": str(min(prices)), "highest_price": str(max(prices)),
+                 "average_price": str((sum(prices) / len(prices)).quantize(unit)), "currency": product.currency}
+    return {"stats": stats, "history": [SnapshotResponse.model_validate(s).model_dump(mode="json") for s in snapshots],
+            "excluded_legacy_count": excluded, "source": source}
 
-@router.post("/{id}/seed-history")
-def seed_product_history(id: int, db: Session = Depends(get_db)):
-    product = db.query(Product).filter(Product.id == id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
-    import random
-    from datetime import datetime, timedelta
-    
-    base_price = product.current_price
-    for i in range(30, 0, -1):
-        price_variation = base_price * random.uniform(0.9, 1.1)
-        snap_time = datetime.utcnow() - timedelta(days=i)
-        snapshot = PriceSnapshot(product_id=id, price=round(price_variation, 2), timestamp=snap_time)
-        db.add(snapshot)
-    
-    db.commit()
-    return {"detail": "Seed data inserted"}
 
-@router.post("/{id}/refresh")
+@router.post("/{id}/refresh", response_model=ProductResponse, dependencies=[Depends(require_write)])
 async def refresh_product(id: int, db: Session = Depends(get_db)):
-    """Re-raspa el producto y guarda un nuevo snapshot de precio."""
-    product = db.query(Product).filter(Product.id == id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+    product = find_product(db, id)
     try:
-        scraped_data = await scrape_product(product.url)
-        if scraped_data and scraped_data.get("price"):
-            product.current_price = scraped_data["price"]
-            if scraped_data.get("image_url"):
-                product.image_url = scraped_data["image_url"]
-            snapshot = PriceSnapshot(product_id=product.id, price=product.current_price)
-            db.add(snapshot)
-            db.commit()
-            db.refresh(product)
-        return product
-    except Exception as e:
+        return await finish_observation(db, product, await scrape_product(product.url))
+    except (ValueError, ScrapingError) as exc:
         db.rollback()
-        logger.exception(f"[Refresh Product Error] ID {id}")
-        raise HTTPException(status_code=500, detail=f"Error al actualizar: {str(e)}")
+        raise HTTPException(422, "No se pudo verificar un precio en la misma moneda.") from exc
+    except Exception as exc:
+        db.rollback()
+        logger.error("Product refresh failed: id=%s", id)
+        raise HTTPException(500, "No se pudo actualizar el producto.") from exc
 
-@router.delete("/{id}")
+
+@router.delete("/{id}", dependencies=[Depends(require_write)])
 def delete_product(id: int, db: Session = Depends(get_db)):
-    product = db.query(Product).filter(Product.id == id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+    product = find_product(db, id)
     product.is_active = False
-    db.commit()
-    return {"detail": "Product deactivated"}
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(500, "No se pudo eliminar el producto.") from exc
+    return {"detail": "Producto desactivado; historial conservado."}
